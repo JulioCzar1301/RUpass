@@ -69,7 +69,6 @@ Permite interagir com o backend:
 
 Quando o usuário clica no botão **“Sincronizar com Peers”** na interface `webui.html` de um determinado nó (ex: `localhost:8000`), o frontend faz uma requisição `GET` para o endpoint `/peers/sync` deste nó. A partir disso, o processo segue os seguintes passos:
 
-![Fluxo de sincronização entre peers](https://raw.githubusercontent.com/seuusuario/blockchain-p2p/main/docs/sync-flow.png)
 
 1. **Registro de Peers**
    - O usuário fornece a URL de outro nó por meio da interface ou da API (`/peers/register?peer_url=...`).
@@ -109,8 +108,8 @@ Essas chamadas permitem automatizar a comunicação entre nós e testar a robust
 
 ```bash
 # Clone o repositório
-$ git clone https://github.com/seuusuario/blockchain-p2p.git
-$ cd blockchain-p2p
+$ git clone https://github.com/seuusuario/blockchain_full.git
+$ cd blockchain_full
 
 # Crie e ative um ambiente virtual
 $ python -m venv venv
@@ -126,12 +125,12 @@ $ pip install -r requirements.txt
 
 ### 1. Execute um nó
 ```bash
-uvicorn blockchain_enhanced_full:app --reload --port 8000
+uvicorn blockchain_enhanced_full_cors:app --reload --port 8000
 ```
 
 ### 2. Em outro terminal, outro nó
 ```bash
-uvicorn blockchain_enhanced_full:app --reload --port 8001
+uvicorn blockchain_enhanced_full_cors:app --reload --port 8001
 ```
 
 ### 3. Acesse em diferentes abas do navegador:
