@@ -1,0 +1,159 @@
+# 🧬 Projeto Blockchain Educacional com Suporte a Múltiplos Peers
+
+Este projeto é uma implementação didática de uma **blockchain simplificada** com suporte a **transações digitais assinadas**, **validação de integridade**, **sincronização entre nós (peers)** e uma interface **web responsiva** para interação.
+
+---
+
+## ⚙️ Como funciona
+
+A blockchain aqui implementada funciona como um **livro-razão distribuído**, onde:
+
+- Cada **bloco** contém um conjunto de **transações**.
+- As transações são **assinadas digitalmente** com chaves ECDSA.
+- A mineração usa uma prova de trabalho simples (nonce + hash com prefixo de zeros).
+- A integridade da cadeia é verificada por `hashes` encadeados e assinaturas.
+- Múltiplos nós (peers) podem ser conectados e sincronizados com base na **cadeia mais longa**.
+
+---
+
+## 🧱 Estrutura do Código
+
+### `block_class.py`
+Contém as classes principais:
+- **`Transaction`**: representa uma transação assinada.
+- **`Block`**: representa um bloco da cadeia, contendo transações, hash, nonce etc.
+
+### `blockchain.py`
+- **`Blockchain`**: classe que gerencia a cadeia de blocos, mineração, validação, adicao de transações e sincronização.
+
+### `blockchain_enhanced_full.py`
+- Servidor **FastAPI** com endpoints REST para:
+  - Geração de chaves
+  - Assinatura de transação
+  - Envio e mineração
+  - Validação de cadeia
+  - Exportação/importação da blockchain
+  - Registro e sincronização de peers
+
+---
+
+## 🌐 Interface Web (Frontend)
+
+### Arquivo: `webui.html`
+
+Permite interagir com o backend:
+
+- ✅ **Gerar Par de Chaves** (ECDSA)
+- ✉️ **Preencher dados e Assinar Transação**
+- ↗️ **Enviar Transação** ao pool
+- 💰 **Minerar um Bloco** com as transações pendentes
+- ⛔️ **Hackear um Bloco** para simular ataque
+- ✅ **Verificar Integridade da Cadeia**
+- 📃 **Exportar Blockchain**
+- 💾 **Importar Blockchain** de outro peer
+- 🔗 **Registrar Peer** (ex: http://localhost:8001)
+- ↻ **Sincronizar com Peers** (adoção da cadeia mais longa)
+
+---
+
+## 🚀 Suporte a Múltiplos Peers
+
+### Recursos implementados:
+- Cada instância FastAPI é um **nó independente**
+- Os peers se comunicam via HTTP para:
+  - Registrar-se entre si (`/peers/register`)
+  - Exportar suas cadeias (`/export`)
+  - Sincronizar com base na cadeia mais longa (`/peers/sync`)
+
+### 🔄 Como funciona a sincronização
+
+Quando o usuário clica no botão **“Sincronizar com Peers”** na interface `webui.html` de um determinado nó (ex: `localhost:8000`), o frontend faz uma requisição `GET` para o endpoint `/peers/sync` deste nó. A partir disso, o processo segue os seguintes passos:
+
+![Fluxo de sincronização entre peers](https://raw.githubusercontent.com/seuusuario/blockchain-p2p/main/docs/sync-flow.png)
+
+1. **Registro de Peers**
+   - O usuário fornece a URL de outro nó por meio da interface ou da API (`/peers/register?peer_url=...`).
+   - O nó atual armazena essa URL como peer conhecido.
+
+2. **Exportação de Cadeia**
+   - Quando um nó deseja sincronizar, ele faz requisições `GET /export` para cada peer registrado.
+   - Cada peer responde com a sua blockchain completa.
+
+3. **Comparação e Substituição**
+   - O nó local verifica qual das cadeias recebidas dos peers é **mais longa** e **válida** (`is_chain_valid`).
+   - Se houver uma cadeia mais longa e válida do que a sua, ele a **substitui automaticamente**.
+
+4. **Critério de Consenso**
+   - A blockchain mais longa é considerada a correta (estratégia clássica usada no Bitcoin e Ethereum).
+
+Esse processo garante que todos os nós eventualmente compartilhem o mesmo estado da blockchain, mesmo após divergências.
+
+### 🧪 Exemplo de uso via API (insomnia, postman ou axios)
+
+```bash
+# Registrar um peer
+curl -X POST "http://localhost:8000/peers/register" -H "Content-Type: application/json" -d '"http://localhost:8001"'
+
+# Exportar cadeia
+curl http://localhost:8001/export
+
+# Sincronizar com peers
+curl http://localhost:8000/peers/sync
+```
+
+Essas chamadas permitem automatizar a comunicação entre nós e testar a robustez do consenso entre cadeias.
+
+---
+
+## 🛠️ Instalação
+
+```bash
+# Clone o repositório
+$ git clone https://github.com/seuusuario/blockchain-p2p.git
+$ cd blockchain-p2p
+
+# Crie e ative um ambiente virtual
+$ python -m venv venv
+$ source venv/bin/activate  # ou venv\Scripts\activate no Windows
+
+# Instale as dependências
+$ pip install -r requirements.txt
+```
+
+---
+
+## 🎓 Testando localmente
+
+### 1. Execute um nó
+```bash
+uvicorn blockchain_enhanced_full:app --reload --port 8000
+```
+
+### 2. Em outro terminal, outro nó
+```bash
+uvicorn blockchain_enhanced_full:app --reload --port 8001
+```
+
+### 3. Acesse em diferentes abas do navegador:
+- [http://localhost:8000/webui.html](http://localhost:8000/webui.html)
+- [http://localhost:8001/webui.html](http://localhost:8001/webui.html)
+
+---
+
+## 🔧 Tecnologias usadas
+- Python 3.10+
+- FastAPI + Uvicorn
+- Tailwind CSS
+- HTML5 + JS (com axios)
+- ECDSA para assinaturas
+
+---
+
+## 🌟 Autor
+**Fabio** — Projeto educacional para exploração de blockchains, segurança e descentralização com IA e interação web.
+
+> Sinta-se à vontade para usar, modificar e evoluir este projeto!
+
+
+
+
