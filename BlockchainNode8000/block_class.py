@@ -9,6 +9,7 @@ class Transaction:
         self.recipient = recipient
         self.amount = amount
         self.signature = signature
+        print(self.signature)
         self.public_key = public_key
 
     def to_dict(self):

@@ -3,7 +3,7 @@ import time
 
 def run_node(port):
     return subprocess.Popen(
-        ["uvicorn", "blockchain_enhanced_full:app", "--reload", "--port", str(port)],
+        ["uvicorn", "app:app", "--reload", "--port", str(port)],
         cwd=".",
     )
 

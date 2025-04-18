@@ -31,6 +31,7 @@
       const recipient = document.getElementById('recipient').value;
       const amount = parseFloat(document.getElementById('amount').value);
       const privateKey = document.getElementById('privateKey').value;
+      console.log(privateKey)
 
       const txDataObj = { sender, recipient, amount };
       const txData = sortedJSONString(txDataObj);
@@ -52,6 +53,8 @@
         signature: document.getElementById('signature').value,
         public_key: document.getElementById('publicKey').value
       };
+
+      print(tx)
 
       try {
         const response = await axios.post(`${API_URL}/transaction`, tx);

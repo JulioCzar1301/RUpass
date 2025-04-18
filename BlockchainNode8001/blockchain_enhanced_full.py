@@ -40,6 +40,7 @@ class TransactionData(BaseModel):
 @app.post("/transaction")
 def add_transaction(tx: TransactionData):
     transaction = Transaction(**tx.dict())
+    print(**tx.dict())
     if not transaction.is_valid():
         return {"detail": "Transação inválida"}, 400
     blockchain.add_transaction(transaction)
