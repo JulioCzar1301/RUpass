@@ -24,9 +24,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configurações do Blockchain
-BLOCKCHAIN_FILE = "ru_blockchain.json"
-
 class User(BaseModel):
     matricula: int
     cv: str
@@ -233,20 +230,6 @@ class RUToken:
 # Inicializa o sistema
 ru_token = RUToken()
 
-# Endpoints de Alunos (mantidos do seu código original)
-@app.get("/hello")
-def read_root():
-    try:
-        conn = psycopg.connect('postgresql://postgres:123456@db:5432/alunos')
-        cur = conn.cursor()
-        cur.execute("SELECT version();")
-        version = cur.fetchone()
-        cur.close()
-        conn.close()
-        return {"message": f"Conectado ao PostgreSQL! Versão: {version}"}
-    except Exception as e:
-        return {"error": str(e)}
-
 @app.post("/createUser")
 def create_user(user: User):
     try:
@@ -373,15 +356,6 @@ async def get_balance(student_id: int):
     return {
         "student_id": student_id,
         "balance": ru_token.get_balance(student_id)
-    }
-
-@app.post("/mine")
-async def mine_transactions():
-    block = ru_token.mine_pending_transactions()
-    return {
-        "status": "success",
-        "message": "Novo bloco minerado",
-        "block": block.to_dict()
     }
 
 @app.get("/chain")
