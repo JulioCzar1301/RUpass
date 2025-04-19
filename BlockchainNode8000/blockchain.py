@@ -17,7 +17,8 @@ class Blockchain:
         # Se não houver blocos, cria o genesis
         if not self.blocks:
             self.create_genesis_block()
-        self.create_genesis_block()
+            self.save()
+
 
     def create_genesis_block(self):
         genesis = Block(0, time.time(), None, [])

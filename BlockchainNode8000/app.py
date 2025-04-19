@@ -321,7 +321,6 @@ async def recharge_wallet(request: RechargeRequest):
     try:
         tx = ru_token.recharge(
             request.student_id,
-            request.codigo_seguranca,
             request.amount,
 
         )

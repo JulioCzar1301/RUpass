@@ -1,158 +1,105 @@
-# 🧬 Projeto Blockchain Educacional com Suporte a Múltiplos Peers
+# 🏦 Blockchain RU - Sistema de Pagamentos Universitários
 
-Este projeto é uma implementação didática de uma **blockchain simplificada** com suporte a **transações digitais assinadas**, **validação de integridade**, **sincronização entre nós (peers)** e uma interface **web responsiva** para interação.
+![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.68+-green.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue.svg)
+![Docker](https://img.shields.io/badge/Docker-20.10+-blue.svg)
 
----
+## 📜 Apresentação do Projeto
 
-## ⚙️ Como funciona
+Sistema de pagamentos baseado em blockchain para restaurantes universitários, desenvolvido com:
 
-A blockchain aqui implementada funciona como um **livro-razão distribuído**, onde:
+- **FastAPI**: Framework web moderno para construção da API
+- **PostgreSQL**: Armazenamento seguro de dados dos alunos e transações
+- **ECDSA**: Criptografia assimétrica para assinatura digital de transações
+- **Docker**: Containerização para fácil implantação
 
-- Cada **bloco** contém um conjunto de **transações**.
-- As transações são **assinadas digitalmente** com chaves ECDSA.
-- A mineração usa uma prova de trabalho simples (nonce + hash com prefixo de zeros).
-- A integridade da cadeia é verificada por `hashes` encadeados e assinaturas.
-- Múltiplos nós (peers) podem ser conectados e sincronizados com base na **cadeia mais longa**.
+Principais funcionalidades:
+- Carteira digital para alunos
+- Recarga de saldo com registro imutável na blockchain
+- Pagamentos no RU com verificação de assinatura digital
+- Consulta de saldo e histórico de transações
 
----
+## 🐳 Como Rodar o Projeto com Docker
 
-## 🧱 Estrutura do Código
+### Pré-requisitos
+- Docker Engine 20.10+
+- Docker Compose 1.29+
 
-### `block_class.py`
-Contém as classes principais:
-- **`Transaction`**: representa uma transação assinada.
-- **`Block`**: representa um bloco da cadeia, contendo transações, hash, nonce etc.
+### Passo a Passo
 
-### `blockchain.py`
-- **`Blockchain`**: classe que gerencia a cadeia de blocos, mineração, validação, adicao de transações e sincronização.
+1. **Clone o repositório**:
+   ```bash
+   git clone https://github.com/seu-usuario/blockchain-ru.git
+   cd blockchain-ru
+   ```
 
-### `blockchain_enhanced_full.py`
-- Servidor **FastAPI** com endpoints REST para:
-  - Geração de chaves
-  - Assinatura de transação
-  - Envio e mineração
-  - Validação de cadeia
-  - Exportação/importação da blockchain
-  - Registro e sincronização de peers
+2.**Inicie o Docker**:
+   ```bash
+   docker-compose up -d --build
+   ```
 
----
+3.**Para parar os containers**
+   ```bash
+   docker-compose down
+   ```
+## 📚 Documentação dos Endpoints
 
-## 🌐 Interface Web (Frontend)
+# 👨🎓 Gestão de Alunos
 
-### Arquivo: `webui.html`
+### POST `/createUser`
+Cria um novo usuário/aluno no sistema.
 
-Permite interagir com o backend:
-
-- ✅ **Gerar Par de Chaves** (ECDSA)
-- ✉️ **Preencher dados e Assinar Transação**
-- ↗️ **Enviar Transação** ao pool
-- 💰 **Minerar um Bloco** com as transações pendentes
-- ⛔️ **Hackear um Bloco** para simular ataque
-- ✅ **Verificar Integridade da Cadeia**
-- 📃 **Exportar Blockchain**
-- 💾 **Importar Blockchain** de outro peer
-- 🔗 **Registrar Peer** (ex: http://localhost:8001)
-- ↻ **Sincronizar com Peers** (adoção da cadeia mais longa)
-
----
-
-## 🚀 Suporte a Múltiplos Peers
-
-### Recursos implementados:
-- Cada instância FastAPI é um **nó independente**
-- Os peers se comunicam via HTTP para:
-  - Registrar-se entre si (`/peers/register`)
-  - Exportar suas cadeias (`/export`)
-  - Sincronizar com base na cadeia mais longa (`/peers/sync`)
-
-### 🔄 Como funciona a sincronização
-
-Quando o usuário clica no botão **“Sincronizar com Peers”** na interface `webui.html` de um determinado nó (ex: `localhost:8000`), o frontend faz uma requisição `GET` para o endpoint `/peers/sync` deste nó. A partir disso, o processo segue os seguintes passos:
-
-
-1. **Registro de Peers**
-   - O usuário fornece a URL de outro nó por meio da interface ou da API (`/peers/register?peer_url=...`).
-   - O nó atual armazena essa URL como peer conhecido.
-
-2. **Exportação de Cadeia**
-   - Quando um nó deseja sincronizar, ele faz requisições `GET /export` para cada peer registrado.
-   - Cada peer responde com a sua blockchain completa.
-
-3. **Comparação e Substituição**
-   - O nó local verifica qual das cadeias recebidas dos peers é **mais longa** e **válida** (`is_chain_valid`).
-   - Se houver uma cadeia mais longa e válida do que a sua, ele a **substitui automaticamente**.
-
-4. **Critério de Consenso**
-   - A blockchain mais longa é considerada a correta (estratégia clássica usada no Bitcoin e Ethereum).
-
-Esse processo garante que todos os nós eventualmente compartilhem o mesmo estado da blockchain, mesmo após divergências.
-
-### 🧪 Exemplo de uso via API (insomnia, postman ou axios)
-
-```bash
-# Registrar um peer
-curl -X POST "http://localhost:8000/peers/register" -H "Content-Type: application/json" -d '"http://localhost:8001"'
-
-# Exportar cadeia
-curl http://localhost:8001/export
-
-# Sincronizar com peers
-curl http://localhost:8000/peers/sync
+**Request Body:**
+```json
+{
+  "matricula": 123456,
+  "cv": "senha123",
+  "nome": "Fulano da Silva",
+  "curso": "Ciência da Computação",
+  "unidade": "Campus Central",
+  "rg": "1234567",
+  "data_expedicao": "2010-01-01",
+  "data_nascimento": "1990-01-01"
+}
 ```
+### GET /alunos
+Lista todos os alunos cadastrados.
 
-Essas chamadas permitem automatizar a comunicação entre nós e testar a robustez do consenso entre cadeias.
+### GET /aluno/{id}
+Retorna os dados de um aluno específico.
 
----
+### DELETE /aluno/{id}
+Remove um aluno do sistema.
 
-## 🛠️ Instalação
+# 💰 Operações Financeiras
 
-```bash
-# Clone o repositório
-$ git clone https://github.com/seuusuario/blockchain_full.git
-$ cd blockchain_full
+## POST /recharge
+Recarrega a carteira digital do aluno.
 
-# Crie e ative um ambiente virtual
-$ python -m venv venv
-$ source venv/bin/activate  # ou venv\Scripts\activate no Windows
-
-# Instale as dependências
-$ pip install -r requirements.txt
+**Request Body:**
+```json
+{
+  "student_id": 123456,
+  "amount": 100.0
+}
 ```
+## POST /payment
+Realiza pagamento no restaurante universitário.
 
----
+**Request Body:**
 
-## 🎓 Testando localmente
-
-### 1. Execute um nó
-```bash
-uvicorn blockchain_enhanced_full_cors:app --reload --port 8000
+```json
+{
+  "student_id": 123456,
+  "codigo_seguranca": "senha123",
+  "amount": 15.0
+}
 ```
+## GET /balance/{student_id}
+Consulta o saldo atual do aluno.
 
-### 2. Em outro terminal, outro nó
-```bash
-uvicorn blockchain_enhanced_full_cors:app --reload --port 8001
-```
+# ⛓️ Operações com Blockchain
 
-### 3. Acesse em diferentes abas do navegador:
-- [http://localhost:8000/webui.html](http://localhost:8000/webui.html)
-- [http://localhost:8001/webui.html](http://localhost:8001/webui.html)
-
----
-
-## 🔧 Tecnologias usadas
-- Python 3.10+
-- FastAPI + Uvicorn
-- Tailwind CSS
-- HTML5 + JS (com axios)
-- ECDSA para assinaturas
-
----
-
-## 🌟 Autor
-**Fabio** — Projeto educacional para exploração de blockchains, segurança e descentralização com IA e interação web.
-
-> Sinta-se à vontade para usar, modificar e evoluir este projeto!
-
-
-
-
+## GET /chain
+Retorna toda a cadeia de blocos com as transações registradas.
