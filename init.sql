@@ -6,10 +6,7 @@ CREATE TABLE alunos (
     unidade TEXT,
     rg TEXT,
     data_expedicao DATE,
-    data_nascimento DATE,
-    public_key TEXT,
-    private_key TEXT
-
+    data_nascimento DATE
 );
 
 CREATE TABLE blockchain (
