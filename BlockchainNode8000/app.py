@@ -37,14 +37,12 @@ class User(BaseModel):
 class RechargeRequest(BaseModel):
     student_id: int
     amount: float
-    timestamp:str
     signature: str
     public_key: str
 
 class PaymentRequest(BaseModel):
     student_id: int
     codigo_seguranca: str
-    timestamp: str
     amount: float
     signature: str
     public_key: str
@@ -177,6 +175,20 @@ class RUToken:
     def get_balance(self, student_id: int) -> float:
         """Retorna o saldo do aluno"""
         return self.balances_cache.get(str(student_id), 0.0)
+
+def format_timestamp(timestamp):
+    """Converte timestamp Unix (float) para formato dd/mm/aaaa hh:mm"""
+    try:
+        # Converte para datetime (considerando o timestamp em segundos)
+        dt = date.fromtimestamp(timestamp)
+        print(dt)
+
+        # Formata para o padrão brasileiro
+        return dt.strftime("%d/%m/%Y")
+
+    except Exception as e:
+        print(f"Erro ao formatar timestamp {timestamp}: {str(e)}")
+        return "Data inválida"
 
 # Inicializa o sistema
 ru_token = RUToken()
@@ -331,3 +343,36 @@ def sign_data(data: SignData):
     sk = SigningKey.from_pem(data.private_key.encode())
     signature = sk.sign(data.tx_data.encode())
     return {"signature": signature.hex()}
+
+@app.get("/transaction_history/{student_id}")
+async def get_transaction_history(student_id: int):
+    try:
+        student_id_str = str(student_id)
+        history = []
+
+        for block in ru_token.blockchain.blocks:
+            for tx in block.transactions:
+                if tx.sender == student_id_str or tx.recipient == student_id_str:
+                    transaction_type = "pagamento" if tx.sender == student_id_str else "recarga"
+
+                    history.append({
+                        "amount": tx.amount,
+                        "timestamp": block.timestamp,  # <-- Não formata ainda
+                        "type": transaction_type,
+                    })
+
+        # Ordena por timestamp numérico
+        history.sort(key=lambda x: x["timestamp"], reverse=True)
+
+        # Depois formata os timestamps
+        for tx in history:
+            tx["timestamp"] = format_timestamp(tx["timestamp"])
+
+        return {
+            "student_id": student_id,
+            "transaction_count": len(history),
+            "transactions": history
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -4,12 +4,12 @@ from ecdsa import VerifyingKey, BadSignatureError
 
 
 class Transaction:
-    def __init__(self, sender, recipient, amount, signature=None, public_key=None):
+    def __init__(self, sender, recipient, amount, signature=None, public_key=None, timestamp=None):
         self.sender = sender
         self.recipient = recipient
         self.amount = amount
         self.signature = signature
-        print(self.signature)
+        self.timestamp = timestamp
         self.public_key = public_key
 
     def to_dict(self):
@@ -18,7 +18,8 @@ class Transaction:
             "recipient": self.recipient,
             "amount": self.amount,
             "signature": self.signature,
-            "public_key": self.public_key
+            "public_key": self.public_key,
+            "timestamp": self.timestamp
         }
 
     def is_valid(self):
