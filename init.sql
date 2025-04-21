@@ -1,5 +1,5 @@
-CREATE TABLE IF NOT EXISTS alunos (
-    id INT PRIMARY KEY,
+CREATE TABLE alunos (
+    id BIGINT PRIMARY KEY,
     cv TEXT NOT NULL,
     nome TEXT,
     curso TEXT,
