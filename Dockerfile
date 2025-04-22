@@ -9,6 +9,14 @@ COPY requirements.txt .
 COPY BlockchainNode8000/ .
 
 # 4. Instala as dependências Python
+RUN apt-get update && apt-get install -y \
+    libglib2.0-0 \
+    libsm6 \
+    libxrender1 \
+    libxext6 \
+    libgl1-mesa-glx\
+    libzbar0
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 5. Expõe a porta usada pelo FastAPI

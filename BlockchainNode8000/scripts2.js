@@ -1,5 +1,5 @@
 const API_URL = 'http://localhost:5000';
-const SCAN_API_URL = 'http://localhost:5001';
+const SCAN_API_URL = 'http://localhost:5000';
 let stream = null;
 let scanInterval = null;
 let currentMatricula = null;
@@ -139,7 +139,7 @@ document.getElementById('confirm-purchase').addEventListener('click', async () =
             tx_data: JSON.stringify(txData, Object.keys(txData).sort()),
             private_key: keysResponse.data.private_key,
         });
-        
+
 
         const response = await axios.post(`${API_URL}/payment`, {
             ...txData,
@@ -186,7 +186,7 @@ function generateInvoice(alunoNome, matricula, ticketType, price) {
     doc.setFontSize(14);
     doc.setFont(undefined, 'bold');
     doc.text('DADOS DO ALUNO', 14, 50);
-    doc.setFont(undefined, 'normal'); 
+    doc.setFont(undefined, 'normal');
 
     doc.setFontSize(12);
     doc.text(`Nome: ${alunoNome}`, 14, 60);
