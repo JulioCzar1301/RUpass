@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PassaRU - Compra de Fichas</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PassaRU</h1>
+      <div id="user-info" class="hidden">
+        <h3>Aluno Identificado</h3>
+        <div class="hidden-div">
+          <p>Matrícula: <span id="current-matricula"></span></p>
+          <p>Nome: <span id="current-name"></span></p>
+        </div>
+        <p class="user-balance">Saldo: R$ <span id="current-balance"></span></p>
+      </div>
+    </header>
+
+    <main>
+      <div id="scan-section" class="card">
+        <h2>Compra de Ficha</h2>
+        <p>Clique no botão abaixo para abrir a câmera. Posicione a carteirinha de forma que o código de barras fique à mostra.</p>
+        
+        <div id="camera-container" class="hidden">
+          <video id="video" width="400" height="300" autoplay></video>
+          <canvas id="canvas" width="400" height="300" class="hidden"></canvas>
+        </div>
+        
+        <button id="start-camera">Abrir Câmera</button>
+      </div>
+
+      <div id="ticket-section" class="card hidden">
+        <h2>Selecione a Ficha</h2>
+        <div class="tickets-grid">
+          <div class="ticket-card" data-type="cafe" data-price="0.80">
+            <h3>Desjejum</h3>
+            <p>Horário: <span>7h às 9h</span></p>
+            <p>Valor: <span>R$ 0.80</span></p>
+            <button class="select-btn">Selecionar</button>
+          </div>
+          
+          <div class="ticket-card" data-type="almoco" data-price="1.80">
+            <h3>Almoço</h3>
+            <p>Horário: <span>11h às 14h</span></p>
+            <p>Valor: <span>R$ 1.80</span></p>
+            <button class="select-btn">Selecionar</button>
+          </div>
+          
+          <div class="ticket-card" data-type="lanche" data-price="0.80">
+            <h3>Lanche</h3>
+            <p>Horário: <span>15h às 17h</span></p>
+            <p>Valor: <span>R$ 0.80</span></p>
+            <button class="select-btn">Selecionar</button>
+          </div>
+          
+          <div class="ticket-card" data-type="janta" data-price="1.80">
+            <h3>Jantar</h3>
+            <p>Horário: <span>18h às 20h</span></p>
+            <p>Valor: <span>R$ 1.80</span></p>
+            <button class="select-btn">Selecionar</button>
+          </div>
+        </div>
+        
+        <div id="confirm-section" class="hidden">
+          <h3>Confirmar Compra</h3>
+          <p>Ficha selecionada: <span id="selected-ticket"></span></p>
+          <p>Valor: <span>R$</span> <span id="selected-price"></span></p>
+          <div class="button-group">
+            <button id="confirm-purchase">Confirmar Compra</button>
+            <button id="cancel-purchase" class="secondary">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="message" class="hidden"></div>
+  </div>
+
+  <script src="scripts2.js"></script>
+</body>
+</html>

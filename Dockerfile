@@ -1,4 +1,4 @@
-# 1. Imagem base
+# 1. Imagem base com as dependências necessárias
 FROM python:3.13-slim
 
 # 2. Define o diretório de trabalho dentro do container
@@ -8,7 +8,7 @@ WORKDIR /BlockchainNode8000
 COPY requirements.txt .
 COPY BlockchainNode8000/ .
 
-# 4. Instala as dependências diretamente (sem venv — Docker já isola)
+# 4. Instala as dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 5. Expõe a porta usada pelo FastAPI

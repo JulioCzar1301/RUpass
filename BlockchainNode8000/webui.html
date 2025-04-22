@@ -1,182 +1,117 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
-  <title>Enviar Transação</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecargaRU</title>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script>
-    const API_URL = 'http://localhost:8000';
-
-    function sortedJSONString(obj) {
-      const sorted = {};
-      Object.keys(obj).sort().forEach(key => {
-        if (key === 'amount') {
-          sorted[key] = parseFloat(obj[key]).toFixed(1);
-        } else {
-          sorted[key] = obj[key];
-        }
-      });
-      return JSON.stringify(sorted);
-    }
-
-    async function generateKeys() {
-      const response = await axios.get(`${API_URL}/generate_keys`);
-      document.getElementById('publicKey').value = response.data.public_key;
-      document.getElementById('privateKey').value = response.data.private_key;
-    }
-
-    async function signTransaction() {
-      const sender = document.getElementById('sender').value;
-      const recipient = document.getElementById('recipient').value;
-      const amount = parseFloat(document.getElementById('amount').value);
-      const privateKey = document.getElementById('privateKey').value;
-
-      const txDataObj = { sender, recipient, amount };
-      const txData = sortedJSONString(txDataObj);
-      console.log("txData para assinar:", txData);
-
-      const response = await axios.post(`${API_URL}/sign`, {
-        tx_data: txData,
-        private_key: privateKey
-      });
-
-      document.getElementById('signature').value = response.data.signature;
-    }
-
-    async function sendTransaction() {
-      const tx = {
-        sender: document.getElementById('sender').value,
-        recipient: document.getElementById('recipient').value,
-        amount: parseFloat(document.getElementById('amount').value),
-        signature: document.getElementById('signature').value,
-        public_key: document.getElementById('publicKey').value
-      };
-
-      try {
-        const response = await axios.post(`${API_URL}/transaction`, tx);
-        document.getElementById('result').textContent = JSON.stringify(response.data, null, 2);
-        loadBlockchain();
-      } catch (error) {
-        document.getElementById('result').textContent = error.response?.data?.detail || 'Erro ao enviar transação.';
-      }
-    }
-
-    async function mineBlock() {
-      const response = await axios.post(`${API_URL}/mine`);
-      document.getElementById('result').textContent = JSON.stringify(response.data, null, 2);
-      loadBlockchain();
-    }
-
-    async function loadBlockchain() {
-      const response = await axios.get(`${API_URL}/chain`);
-      const blocks = response.data;
-      const container = document.getElementById('chain');
-      container.innerHTML = '';
-      blocks.forEach(block => {
-        const div = document.createElement('div');
-        div.className = 'border border-gray-400 bg-white shadow-md rounded-lg p-4 mb-4';
-        div.innerHTML = `
-          <h3 class="font-bold">Bloco ${block.index}</h3>
-          <p><strong>Hash:</strong> ${block.hash}</p>
-          <p><strong>Anterior:</strong> ${block.previous_hash}</p>
-          <p><strong>Nonce:</strong> ${block.nonce}</p>
-          <p><strong>Timestamp:</strong> ${block.timestamp}</p>
-          <p><strong>Transações:</strong></p>
-          <ul class="list-disc pl-6">${block.transactions.map(tx => `<li>${JSON.stringify(tx)}</li>`).join('')}</ul>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    async function hackBlock() {
-      const response = await axios.get(`${API_URL}/hack_block`);
-      document.getElementById('result').textContent = JSON.stringify(response.data, null, 2);
-      loadBlockchain();
-    }
-
-    async function checkBlockchain() {
-      const response = await axios.get(`${API_URL}/check_chain`);
-      document.getElementById('result').textContent = JSON.stringify(response.data, null, 2);
-    }
-
-    async function exportBlockchain() {
-      const response = await axios.get(`${API_URL}/export`);
-      const blob = new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'blockchain.json';
-      a.click();
-    }
-
-    async function importBlockchain(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const content = await file.text();
-      const response = await axios.post(`${API_URL}/import`, JSON.parse(content));
-      document.getElementById('result').textContent = JSON.stringify(response.data, null, 2);
-      loadBlockchain();
-    }
-
-    async function registerPeer() {
-      const peerUrl = prompt("Digite o endereço do peer (ex: http://localhost:8001)");
-      if (!peerUrl) return;
-      const response = await axios.post(`${API_URL}/peers/register?peer_url=${encodeURIComponent(peerUrl)}`);
-      document.getElementById('result').textContent = JSON.stringify(response.data, null, 2);
-    }
-
-    async function syncPeers() {
-      const response = await axios.get(`${API_URL}/peers/sync`);
-      document.getElementById('result').textContent = JSON.stringify(response.data, null, 2);
-      loadBlockchain();
-    }
-  </script>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gray-100 p-6" onload="loadBlockchain()">
-  <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-6">
-    <h1 class="text-2xl font-bold mb-4">Interface Blockchain com Recursos Avançados</h1>
 
-    <div class="grid grid-cols-2 gap-4">
-      <div>
-        <button class="bg-blue-600 text-white px-4 py-2 rounded" onclick="generateKeys()">Gerar Par de Chaves</button>
-        <label class="block mt-2">Chave Privada:<textarea id="privateKey" class="w-full mt-1 p-2 border rounded" rows="3"></textarea></label>
-        <label class="block mt-2">Chave Pública:<textarea id="publicKey" class="w-full mt-1 p-2 border rounded" rows="3"></textarea></label>
+<body>
+  <div class="container">
+    <header>
+      <h1>RecargaRU</h1>
+      <div id="user-info" class="hidden">
+        <h3>Minha Carteira</h3>
+        <div class="hidden-div">
+          <p>Nome: <span id="current-name"></span></p>
+          <p>Matrícula: <span id="current-matricula"></span></p>
+          <p>RG: <span id="current-rg"></span></p>
+        </div>
+        <div class="hidden-div">
+          <p>Unidade: <span id="current-uni"></span></p>
+          <p>Curso: <span id="current-crs"></span></p>
+        </div>
+        <p class="user-balance">Saldo: R$ <span id="current-balance"></span></p>
       </div>
-      <div>
-        <label class="block">Remetente: <input type="text" id="sender" class="w-full mt-1 p-2 border rounded" /></label>
-        <label class="block mt-2">Destinatário: <input type="text" id="recipient" class="w-full mt-1 p-2 border rounded" /></label>
-        <label class="block mt-2">Valor: <input type="number" id="amount" class="w-full mt-1 p-2 border rounded" /></label>
-        <button class="bg-yellow-500 text-white px-4 py-2 rounded mt-2" onclick="signTransaction()">Assinar Transação</button>
-        <label class="block mt-2">Assinatura:<textarea id="signature" class="w-full mt-1 p-2 border rounded" rows="2"></textarea></label>
+    </header>
+
+    <main>
+      <div class="card" id="login-section">
+        <h2>Para começar, insira sua matrícula</h2>
+        <div class="form-group">
+          <label for="matricula">Matrícula: </label>
+          <input type="text" id="matricula" placeholder="Digite sua matrícula" required>
+        </div>
+        <button onclick="getUser()">Acessar Minha Carteirinha</button>
+        <p class="divider">OU</p>
+        <button class="secondary" onclick="showCreateUser()">Cadastre uma Nova Carteirinha</button>
+      </div>
+
+      <div class="card hidden" id="create-user-section">
+        <h2>Criar Nova Carteirinha</h2>
+        <div class="form-group">
+          <label for="new-matricula">Matrícula:</label>
+          <input type="text" id="new-matricula" placeholder="Número da matrícula" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label for="new-cv">Código de Segurança:</label>
+          <input type="text" id="new-cv" maxlength="4"
+            placeholder="Digite o código de 4 dígitos de segurança da carteirinha">
+        </div>
+        <div class="form-group">
+          <label for="new-name">Nome Completo:</label>
+          <input type="text" id="new-name" placeholder="Seu nome completo">
+        </div>
+        <div class="form-group-div">
+          <div class="form-group">
+            <label for="unidade">Unidade:</label>
+            <select id="unidade" onchange="updateCursos()">
+              <option value="">Selecione uma Unidade</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="curso">Curso:</label>
+            <select id="curso" disabled>
+              <option value="">Selecione primeiro a Unidade</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="new-name">RG:</label>
+          <input type="text" id="new-rg" placeholder="Seu RG" maxlength="10">
+        </div>
+        <div class="form-group-div">
+          <div class="form-group">
+            <label for="new-name">Data de Expedição:</label>
+            <input type="date" id="new-date-exp">
+          </div>
+          <div class="form-group">
+            <label for="new-name">Data de Nascimento:</label>
+            <input type="date" id="new-date-birth">
+          </div>
+        </div>
+        <div class="button-group">
+          <button onclick="createUser()">Criar</button>
+        </div>
+      </div>
+
+      <div class="card hidden" id="recharge-section">
+        <h2>Recarregar Carteirinha</h2>
+        <p style="margin-bottom: 6px; margin-top: -6px;">Escolha uma quantia para adicionar ao seu saldo.</p>
+        <div class="form-group">
+          <label for="recharge-amount">Valor (R$):</label>
+          <input type="number" id="recharge-amount" min="1" step="0.01" placeholder="10.00">
+        </div>
+        <button onclick="recharge()">Recarregar</button>
+      </div>
+    </main>
+
+    <div id="transaction-history" class="hidden">
+      <div class="history-header" onclick="toggleHistory()">
+        <h3>Histórico de Transações</h3>
+        <span id="history-arrow">▼</span>
+      </div>
+      <div id="history-content">
+        <div id="transactions-list"></div>
       </div>
     </div>
-
-    <div class="mt-4">
-  <details class="mb-2" open>
-    <summary class="cursor-pointer bg-blue-800 text-white px-4 py-2 rounded w-fit">Menu de Ações</summary>
-    <div class="mt-2 flex flex-wrap gap-2 justify-start">
-      <button class="bg-green-600 text-white px-4 py-2 rounded" onclick="sendTransaction()">Enviar Transação</button>
-      <button class="bg-purple-600 text-white px-4 py-2 rounded" onclick="mineBlock()">Minerar Bloco</button>
-      <button class="bg-red-600 text-white px-4 py-2 rounded" onclick="hackBlock()">Hackear Bloco</button>
-      <button class="bg-indigo-600 text-white px-4 py-2 rounded" onclick="checkBlockchain()">Verificar Integridade</button>
-      <button class="bg-gray-700 text-white px-4 py-2 rounded" onclick="exportBlockchain()">Exportar Blockchain</button>
-      <label class="bg-gray-500 text-white px-4 py-2 rounded cursor-pointer">
-        Importar Blockchain
-        <input type="file" class="hidden" onchange="importBlockchain(event)">
-      </label>
-      <button class="bg-teal-700 text-white px-4 py-2 rounded border-2 border-white shadow-md min-w-[14rem] text-left" style="background-color: #0d9488; color: white;" onclick="registerPeer()">🔗 Registrar Peer</button>
-      <button class="bg-cyan-600 text-white px-4 py-2 rounded border-2 border-white shadow-md min-w-[14rem] text-left" style="background-color: #0891b2; color: white;" onclick="syncPeers()">🔄 Sincronizar com Peers</button>
-    </div>
-  </details>
-</div>
-
-    <h2 class="text-xl font-semibold mt-6">Resposta da API:</h2>
-    <pre id="result" class="bg-gray-200 p-3 rounded overflow-auto"></pre>
-
-    <h2 class="text-xl font-semibold mt-4">Blockchain Atual:</h2>
-    <div id="chain" class="bg-gray-100 p-3 rounded overflow-auto h-[32rem]"></div>
+    <div id="message" class="hidden"></div>
   </div>
-</body>
-</html>
 
+  <script src="scripts.js"></script>
+</body>
+
+</html>

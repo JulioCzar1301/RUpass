@@ -1,15 +1,12 @@
-CREATE TABLE IF NOT EXISTS alunos (
-    id INT PRIMARY KEY,
+CREATE TABLE alunos (
+    id BIGINT PRIMARY KEY,
     cv TEXT NOT NULL,
     nome TEXT,
     curso TEXT,
     unidade TEXT,
     rg TEXT,
     data_expedicao DATE,
-    data_nascimento DATE,
-    public_key TEXT,
-    private_key TEXT
-
+    data_nascimento DATE
 );
 
 CREATE TABLE blockchain (
