@@ -1,5 +1,4 @@
 const API_URL = 'http://localhost:5000';
-const SCAN_API_URL = 'http://localhost:5000';
 let stream = null;
 let scanInterval = null;
 let currentMatricula = null;
@@ -46,7 +45,7 @@ async function scanBarcode() {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         const imageData = canvas.toDataURL('image/jpeg');
-        const response = await axios.post(`${SCAN_API_URL}/scan`, { image: imageData });
+        const response = await axios.post(`${API_URL}/scan`, { image: imageData });
 
         if (response.data.status === 'success' && response.data.data.length === 14) {
             clearInterval(scanInterval);
@@ -58,6 +57,7 @@ async function scanBarcode() {
             await fetchStudentData(parseInt(currentMatricula));
             showTicketOptions();
         }
+
     } catch (error) {
         console.error('Erro durante o scan:', error);
     }
@@ -74,6 +74,7 @@ function showTicketOptions() {
 function updateTicketAvailability() {
     const now = new Date();
     const currentHour = now.getHours();
+    const currentMinutes = now.getMinutes();
     const tickets = document.querySelectorAll('.ticket-card');
 
     tickets.forEach(ticket => {
@@ -82,16 +83,17 @@ function updateTicketAvailability() {
 
         switch (type) {
             case 'cafe':
-                isAvailable = currentHour >= 7 && currentHour < 9;
+                isAvailable = (currentHour > 6 || (currentHour === 6 && currentMinutes >= 30)) && currentHour <= 9;
                 break;
             case 'almoco':
-                isAvailable = currentHour >= 11 && currentHour < 14;
+                isAvailable = (currentHour > 11 || (currentHour === 11 && currentMinutes >= 30)) && currentHour <= 14;
                 break;
             case 'lanche':
-                isAvailable = currentHour >= 15 && currentHour < 17;
+                isAvailable = (currentHour > 17 || (currentHour === 17 && currentMinutes >= 30))
+                    && (currentHour < 19 || (currentHour === 19 && currentMinutes <= 30));
                 break;
             case 'janta':
-                isAvailable = currentHour >= 18 && currentHour < 20;
+                isAvailable = currentHour >= 18 && currentHour <= 20;
                 break;
         }
 
@@ -127,34 +129,43 @@ document.getElementById('confirm-purchase').addEventListener('click', async () =
         const ticketType = selectedTicketSpan.textContent;
         const ticketPrice = parseFloat(selectedPriceSpan.textContent);
 
-        const keysResponse = await axios.get(`${API_URL}/generate_keys`);
+        const balanceResponse = await axios.get(`${API_URL}/balance/${currentMatricula}`);
 
-        const txData = {
-            student_id: parseInt(currentMatricula),
-            codigo_seguranca: currentCodigoSeguranca,
-            amount: ticketPrice
-        };
+        if (balanceResponse.data.balance >= ticketPrice) {
 
-        const signResponse = await axios.post(`${API_URL}/sign`, {
-            tx_data: JSON.stringify(txData, Object.keys(txData).sort()),
-            private_key: keysResponse.data.private_key,
-        });
+            const keysResponse = await axios.get(`${API_URL}/generate_keys`);
+
+            const txData = {
+                student_id: parseInt(currentMatricula),
+                codigo_seguranca: currentCodigoSeguranca,
+                amount: ticketPrice
+            };
+
+            const signResponse = await axios.post(`${API_URL}/sign`, {
+                tx_data: JSON.stringify(txData, Object.keys(txData).sort()),
+                private_key: keysResponse.data.private_key,
+            });
 
 
-        const response = await axios.post(`${API_URL}/payment`, {
-            ...txData,
-            signature: signResponse.data.signature,
-            public_key: keysResponse.data.public_key
-        });
+            const response = await axios.post(`${API_URL}/payment`, {
+                ...txData,
+                signature: signResponse.data.signature,
+                public_key: keysResponse.data.public_key
+            });
 
-        showMessage('Compra realizada com sucesso!');
-        await fetchStudentData(currentMatricula);
+            showMessage('Compra realizada com sucesso!');
+            await fetchStudentData(currentMatricula);
 
-        // Gerar nota fiscal
-        const alunoNome = document.getElementById('current-name').textContent;
-        generateInvoice(alunoNome, currentMatricula, ticketType, ticketPrice);
+            // Gerar nota fiscal
+            const alunoNome = document.getElementById('current-name').textContent;
+            generateInvoice(alunoNome, currentMatricula, ticketType, ticketPrice);
 
-        resetInterface();
+            resetInterface();
+        } else {
+            showMessage('Saldo insuficiente para realizar a compra', true);
+            confirmSection.classList.add('hidden');
+        }
+
     } catch (error) {
         console.error('Erro na compra:', error);
         showMessage(error.response?.data?.detail || 'Erro ao realizar compra', true);

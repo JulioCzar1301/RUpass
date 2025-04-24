@@ -70,7 +70,8 @@ class Blockchain:
                                 tx['recipient'],
                                 tx['amount'],
                                 tx.get('signature'),
-                                tx.get('public_key')
+                                tx.get('public_key'),
+                                tx.get('timestamp')
                             ) for tx in block_dict['transactions']
                         ]
 
@@ -93,7 +94,8 @@ class Blockchain:
                             tx_dict['recipient'],
                             tx_dict['amount'],
                             tx_dict.get('signature'),
-                            tx_dict.get('public_key')
+                            tx_dict.get('public_key'),
+                            tx_dict.get('timestamp')
                         )
                         self.transaction_pool.append(tx)
 

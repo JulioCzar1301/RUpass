@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecargaRU</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>RecargaRU
+        <a class="header-links" href="file:///C:/Ambiente%20de%20Desenvolvimento/RUpass/BlockchainNode8000/passe.html" target="_blank">PassaRU</a>
+      </h1>
+      <div id="user-info" class="hidden">
+        <h3>Minha Carteira</h3>
+        <div class="hidden-div">
+          <p>Nome: <span id="current-name"></span></p>
+          <p>Matrícula: <span id="current-matricula"></span></p>
+          <p>RG: <span id="current-rg"></span></p>
+        </div>
+        <div class="hidden-div">
+          <p>Unidade: <span id="current-uni"></span></p>
+          <p>Curso: <span id="current-crs"></span></p>
+        </div>
+        <p class="user-balance">Saldo: <span>R$ </span><span id="current-balance"></span></p>
+      </div>
+    </header>
+
+    <main>
+      <div class="card" id="login-section">
+        <h2>Para começar, insira sua matrícula</h2>
+        <div class="form-group">
+          <label for="matricula">Matrícula: </label>
+          <input type="text" id="matricula" placeholder="Digite sua matrícula" required>
+        </div>
+        <button onclick="getUser()">Acessar Minha Carteirinha</button>
+        <p class="divider">OU</p>
+        <button class="secondary" onclick="showCreateUser()">Cadastre uma Nova Carteirinha</button>
+      </div>
+
+      <div class="card hidden" id="create-user-section">
+        <h2>Criar Nova Carteirinha</h2>
+        <div class="form-group">
+          <label for="new-matricula">Matrícula:</label>
+          <input type="text" id="new-matricula" placeholder="Número da matrícula" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label for="new-cv">Código de Segurança:</label>
+          <input type="text" id="new-cv" maxlength="4"
+            placeholder="Digite o código de 4 dígitos de segurança da carteirinha">
+        </div>
+        <div class="form-group">
+          <label for="new-name">Nome Completo:</label>
+          <input type="text" id="new-name" placeholder="Seu nome completo">
+        </div>
+        <div class="form-group-div">
+          <div class="form-group">
+            <label for="unidade">Unidade:</label>
+            <select id="unidade" onchange="updateCursos()">
+              <option value="">Selecione uma Unidade</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="curso">Curso:</label>
+            <select id="curso" disabled>
+              <option value="">Selecione primeiro a Unidade</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="new-name">RG:</label>
+          <input type="text" id="new-rg" placeholder="Seu RG" maxlength="10">
+        </div>
+        <div class="form-group-div">
+          <div class="form-group">
+            <label for="new-name">Data de Expedição:</label>
+            <input type="date" id="new-date-exp">
+          </div>
+          <div class="form-group">
+            <label for="new-name">Data de Nascimento:</label>
+            <input type="date" id="new-date-birth">
+          </div>
+        </div>
+        <div class="button-group">
+          <button onclick="createUser()">Criar</button>
+        </div>
+      </div>
+
+      <div class="card hidden" id="recharge-section">
+        <h2>Recarregar Carteirinha</h2>
+        <p style="margin-bottom: 6px; margin-top: -6px;">Escolha uma quantia para adicionar ao seu saldo.</p>
+        <div class="form-group">
+          <label for="recharge-amount">Valor (R$):</label>
+          <input type="number" id="recharge-amount" min="1" step="0.01" placeholder="10.00">
+        </div>
+        <button onclick="recharge()">Recarregar</button>
+      </div>
+    </main>
+
+    <div id="transaction-history" class="hidden">
+      <div class="history-header" onclick="toggleHistory()">
+        <h3>Histórico de Transações</h3>
+        <span id="history-arrow">▼</span>
+      </div>
+      <div id="history-content">
+        <div id="transactions-list"></div>
+      </div>
+    </div>
+    <div id="message" class="hidden"></div>
+  </div>
+
+  <script src="scripts.js"></script>
+</body>
+
+</html>

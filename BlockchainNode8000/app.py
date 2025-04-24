@@ -9,7 +9,7 @@ from ecdsa import SigningKey, VerifyingKey, NIST384p, BadSignatureError
 import requests
 import psycopg
 from typing import Optional
-from datetime import date
+from datetime import date, datetime, timedelta
 from threading import Lock
 import os
 import cv2
@@ -124,7 +124,7 @@ class RUToken:
         """Recarrega na blockchain com mineração imediata"""
         try:
             # Cria a transação
-            tx = Transaction("RU", str(student_id), amount, signature, public_key)
+            tx = Transaction("RU", str(student_id), amount, signature, public_key, time.time())
 
             # Processa a transação (mineração + salvamento)
             self._process_transaction(tx)
@@ -157,7 +157,7 @@ class RUToken:
                 raise ValueError("Saldo insuficiente")
 
             # Cria a transação
-            tx = Transaction(str(student_id), "RU", amount, signature, public_key)
+            tx = Transaction(str(student_id), "RU", amount, signature, public_key, time.time())
 
             # Processa a transação (mineração + salvamento)
             self._process_transaction(tx)
@@ -184,11 +184,13 @@ def format_timestamp(timestamp):
     """Converte timestamp Unix (float) para formato dd/mm/aaaa hh:mm"""
     try:
         # Converte para datetime (considerando o timestamp em segundos)
-        dt = date.fromtimestamp(timestamp)
-        print(dt)
+        dt = datetime.fromtimestamp(timestamp)
 
-        # Formata para o padrão brasileiro
-        return dt.strftime("%d/%m/%Y")
+        # Ajusta o fuso horário (-2 horas)
+        dt = dt - timedelta(hours=4)
+
+        # Formata para o padrão brasileiro com horas e minutos
+        return dt.strftime("%d/%m/%Y | %H:%M")
 
     except Exception as e:
         print(f"Erro ao formatar timestamp {timestamp}: {str(e)}")
@@ -237,10 +239,6 @@ def delete_aluno(id: int):
                 cur.execute("DELETE FROM alunos WHERE id = %s", (id,))
                 if cur.rowcount == 0:
                     raise HTTPException(status_code=404, detail="Aluno não encontrado")
-
-                # Remove a chave pública do cache
-                if str(id) in ru_token.public_keys:
-                    del ru_token.public_keys[str(id)]
 
         return {"message": "Aluno deletado com sucesso!"}
     except Exception as e:

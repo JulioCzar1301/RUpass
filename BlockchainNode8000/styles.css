@@ -28,6 +28,14 @@ header h1 {
     border-bottom: 4px solid #237e25;
 }
 
+.header-links {
+    font-size: 14px;
+    text-decoration: none;
+    color: #237e25;
+    position: absolute;
+    margin: 15px 0 0 230px
+}
+
 #user-info {
     background-color: rgba(27, 165, 80, 0.3);
     padding: 16px;

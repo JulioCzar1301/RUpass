@@ -183,6 +183,7 @@ async function getUser() {
             then(response => {
                 const { nome, rg, unidade, curso } = response.data;
                 updateUserInfo(matricula, nome, rg, unidade, curso, balance);
+                showRecharge();
             })
             .catch(error => {
                 showMessage('Matrícula não encontrada', true);
@@ -190,7 +191,6 @@ async function getUser() {
             });
 
         currentUser = matricula;
-        showRecharge();
         await updateBalance();
     } catch (error) {
         showMessage('Matrícula não encontrada', true);
